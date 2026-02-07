@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Grid, List, ChevronDown } from 'lucide-react';
 import './ModernProductListing.css';
@@ -8,70 +8,15 @@ const ModernProductListing = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
+  const [products, setProducts] = useState([]);
 
-  // Sample products data - replace with your actual data
-  const products = [
-    {
-      id: 'x990',
-      name: 'FINGER PRINT - X990',
-      category: 'Finger-print',
-      image: '/api/placeholder/400/400',
-      tagline: 'Advanced Biometric Access Control',
-      capacity: '10,000',
-      featured: true,
-      price: 'Contact for Price'
-    },
-    {
-      id: 'f19',
-      name: 'FACE RECOGNITION - F19',
-      category: 'Face Recognition',
-      image: '/api/placeholder/400/400',
-      tagline: 'AI-Powered Face Detection System',
-      capacity: '5,000',
-      featured: true,
-      price: 'Contact for Price'
-    },
-    {
-      id: 'ac100',
-      name: 'ACCESS CONTROL - AC100',
-      category: 'Access Control',
-      image: '/api/placeholder/400/400',
-      tagline: 'Smart Door Management System',
-      capacity: 'Unlimited',
-      featured: false,
-      price: 'Contact for Price'
-    },
-    {
-      id: 'tr500',
-      name: 'TIME RECORDER - TR500',
-      category: 'Time Attendance',
-      image: '/api/placeholder/400/400',
-      tagline: 'Professional Attendance Tracking',
-      capacity: '8,000',
-      featured: false,
-      price: 'Contact for Price'
-    },
-    {
-      id: 'card200',
-      name: 'CARD READER - CR200',
-      category: 'Card Reader',
-      image: '/api/placeholder/400/400',
-      tagline: 'RFID Card Access System',
-      capacity: '15,000',
-      featured: true,
-      price: 'Contact for Price'
-    },
-    {
-      id: 'bio300',
-      name: 'BIO LOCK - BL300',
-      category: 'Smart Lock',
-      image: '/api/placeholder/400/400',
-      tagline: 'Keyless Entry Solution',
-      capacity: 'N/A',
-      featured: false,
-      price: 'Contact for Price'
-    }
-  ];
+  // 🔗 FETCH PRODUCTS FROM BACKEND
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error('Failed to load products', err));
+  }, []);
 
   const categories = [
     'All Products',
@@ -84,10 +29,14 @@ const ModernProductListing = () => {
   ];
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.tagline.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || 
-                          product.category.toLowerCase() === selectedCategory.toLowerCase();
+    const matchesSearch =
+      product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.tagline?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      product.category?.toLowerCase() === selectedCategory.toLowerCase();
+
     return matchesSearch && matchesCategory;
   });
 
@@ -191,10 +140,10 @@ const ModernProductListing = () => {
                 {product.featured && (
                   <div className="featured-badge">Featured</div>
                 )}
-                
+
                 <div className="product-image-container">
                   <img
-                    src={product.image}
+                    src={product.image || '/api/placeholder/400/400'}
                     alt={product.name}
                     className="product-image"
                   />
@@ -207,7 +156,7 @@ const ModernProductListing = () => {
                   <div className="product-category">{product.category}</div>
                   <h3 className="product-name">{product.name}</h3>
                   <p className="product-tagline">{product.tagline}</p>
-                  
+
                   <div className="product-meta">
                     <div className="meta-item">
                       <span className="meta-label">Capacity</span>
